@@ -4,7 +4,8 @@ const cacheAssets = [
   'index.html',
   'about.html',
   '/css/style.css',
-  '/js/main.js'
+  '/js/main.js',
+  '/images/interad.jpg'
 ];
 
 // Call Install Event
