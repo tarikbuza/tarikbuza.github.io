@@ -1,41 +1,47 @@
-var CACHE_NAME = 'my-site-cache-v1';
-var urlsToCache = [
+const cacheName = 'v1';
+
+const cacheAssets = [
   'index.html',
   'about.html',
-  '/css/styles.css',
+  '/css/style.css',
   '/js/main.js'
 ];
 
-self.addEventListener('install', function (e) {
-    console.log("Service Worker: Installed");
-    e.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                cache.addAll(urlsToCache);
-            })
-            .then(() => {
-                console.log("Service Worker: Documents Cached");
-                self.skipWaiting();
-            })
-    );
-});
-   
-self.addEventListener('fetch', e => {
-    console.log("Service Worker: Fetching from Cache");
-    e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+// Call Install Event
+self.addEventListener('install', e => {
+  console.log('Service Worker: Installed');
+
+  e.waitUntil(
+    caches
+      .open(cacheName)
+      .then(cache => {
+        console.log('Service Worker: Caching Files');
+        cache.addAll(cacheAssets);
+      })
+      .then(() => self.skipWaiting())
+  );
 });
 
-self.addEventListener('activate', function (event) {   
-    // Remove unwanted caches
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (CACHE_NAME !== cacheName) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
+// Call Activate Event
+self.addEventListener('activate', e => {
+  console.log('Service Worker: Activated');
+  // Remove unwanted caches
+  e.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cache => {
+          if (cache !== cacheName) {
+            console.log('Service Worker: Clearing Old Cache');
+            return caches.delete(cache);
+          }
         })
-    );
+      );
+    })
+  );
+});
+
+// Call Fetch Event
+self.addEventListener('fetch', e => {
+  console.log('Service Worker: Fetching');
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
